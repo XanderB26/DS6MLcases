@@ -1,0 +1,71 @@
+# Import required libraries
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from skimage.io import imread
+from skimage.feature import canny
+from skimage.measure import label, regionprops
+
+# Path to the image
+image_path = '/Users/ivan/DS6MLcases/Reduced MNIST/Reduced MNIST Data/Reduced Trainging data/8/4857.jpg'
+
+# Load and visualize the image
+image = imread(image_path, as_gray=True)
+plt.imshow(image, cmap='gray')
+plt.title("Original Image")
+plt.axis('off')
+plt.show()
+
+# Apply Canny edge detection
+edges = canny(image)
+plt.imshow(edges, cmap='gray')
+plt.title("Canny Edge Detection")
+plt.axis('off')
+plt.show()
+
+# Calculate the number of edges
+labeled_edges = label(edges)
+num_edges = labeled_edges.max()  # Number of unique regions
+print(f"Number of edges: {num_edges}")
+
+# Calculate the height and width of the digit
+regions = regionprops(labeled_edges)
+if regions:
+    bounding_box = regions[0].bbox
+    height = bounding_box[2] - bounding_box[0]
+    width = bounding_box[3] - bounding_box[1]
+else:
+    height = width = 0
+print(f"Height of digit: {height} pixels")
+print(f"Width of digit: {width} pixels")
+
+# Calculate maximum number of pixels per row and column
+max_pixels_per_column = edges.sum(axis=0).max()
+max_pixels_per_row = edges.sum(axis=1).max()
+print(f"Maximum number of pixels per column: {max_pixels_per_column}")
+print(f"Maximum number of pixels per row: {max_pixels_per_row}")
+
+# Calculate the total number of pixels
+total_pixels = edges.sum()
+print(f"Total number of pixels: {total_pixels}")
+
+# Create a function to calculate all features
+def calculate_features(image_path):
+    image = imread(image_path, as_gray=True)
+    edges = canny(image)
+    labeled_edges = label(edges)
+    num_edges = labeled_edges.max()
+    regions = regionprops(labeled_edges)
+    height, width = (0, 0)
+    if regions:
+        bounding_box = regions[0].bbox
+        height = bounding_box[2] - bounding_box[0]
+        width = bounding_box[3] - bounding_box[1]
+    max_pixels_per_column = edges.sum(axis=0).max()
+    max_pixels_per_row = edges.sum(axis=1).max()
+    total_pixels = edges.sum()
+    return [num_edges, height, width, max_pixels_per_column, max_pixels_per_row, total_pixels]
+
+# Load the original image and reshape it
+original_image = image.reshape(-1)
+print(f"Row vector representation of the original image: {original_image}")
